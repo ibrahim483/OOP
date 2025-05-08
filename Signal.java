@@ -1,58 +1,44 @@
-import java.util.ArrayList;
 
-public class Signal implements Subject{
+package Quistion1;
 
-    ArrayList<Observer> observers;
-    private int value;
-    Samplar samplar;
+import javax.swing.*;
+import java.awt.event.*;
+import java.util.List;
+import java.util.LinkedList;
 
-    public Signal(Samplar samplar) {
-        this.samplar = samplar;
-        observers = new ArrayList<>();
-    }
+public class Signal   {
+	private final int SAMPLING = 1000;
+	private JTextArea jta;
+	private Sampler sampler;
+	
+	private List<SignalObserver> observers = new LinkedList<SignalObserver>();
+	
+	public void addSignalObserver(SignalObserver so) {
+		observers.add(so);
+	}
+	
+	public Signal() {
+		Timer t = new Timer(SAMPLING, new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				double amplitude = sampler.read();
 
-    @Override
-    public void register(Observer o) {
-        observers.add(o);
+				// jta.append(""+String.format("%.6f", amplitude)+"\n");
+				// for(int i=0;i<(int)amplitude;i++)
+				// 	System.out.print('*');
+				// System.out.println();
+				// // inform another view 
 
-    }
+				 
+				for(SignalObserver o : observers)
+					o.updateSignal(amplitude);
+			}
+		});
+		t.start();
+	}
 
-    @Override
-    public void unRegister(Observer o) {
-        int observerIndex = observers.indexOf(o);
-        if (observers.remove(o)) {
-            System.out.println("The observer number " + (observerIndex +1)+" is deleted");
-        }else{
-            System.out.println("The observer is not found");
-        }
-    }
+	public void setSamplar(Sampler s) {
+		this.sampler = s;
+	}
 
-    @Override
-    public void notifyObserver() {
-        for (Observer iterable_element : observers) {
-            iterable_element.update(value);
-        }
-    }
-
-    public void setSampler(Samplar samplar) {
-        this.samplar = samplar; 
-    }
-
-    public void tick() {
-        if (samplar != null) {
-            value = samplar.sample();
-            notifyObserver();
-        }else{
-            System.out.println("The samplar is not set yet");
-        }
-    }
-    public int getValue() {
-        return value;
-    }
-    public void setValue(int value) {
-        this.value = value;
-    }
-    public Samplar getSamplar() {
-        return samplar;
-    }
 }
+
